@@ -22,6 +22,31 @@ clone_or_update https://github.com/zsh-users/zsh-history-substring-search "$CUST
 clone_or_update https://github.com/Aloxaf/fzf-tab "$CUSTOM/plugins/fzf-tab"
 clone_or_update https://github.com/romkatv/powerlevel10k.git "$CUSTOM/themes/powerlevel10k"
 
+# fzf-tab needs the fzf binary; install it with the distro's package manager
+if ! command -v fzf >/dev/null 2>&1; then
+  if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update && sudo apt-get install -y fzf
+  elif command -v dnf >/dev/null 2>&1; then
+    sudo dnf install -y fzf
+  elif command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --needed --noconfirm fzf
+  elif command -v zypper >/dev/null 2>&1; then
+    sudo zypper install -y fzf
+  elif command -v apk >/dev/null 2>&1; then
+    sudo apk add fzf
+  elif command -v brew >/dev/null 2>&1; then
+    brew install fzf
+  fi
+fi
+
+# no known package manager (or the install failed): build from upstream without sudo
+if ! command -v fzf >/dev/null 2>&1; then
+  clone_or_update https://github.com/junegunn/fzf.git "$HOME/.fzf"
+  "$HOME/.fzf/install" --bin
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$HOME/.fzf/bin/fzf" "$HOME/.local/bin/fzf"
+fi
+
 # sudo, docker, docker-compose and extract ship with oh-my-zsh; fzf-tab requires fzf to be installed
 PLUGINS="plugins=(git sudo docker docker-compose extract zsh-completions fzf-tab zsh-autosuggestions zsh-history-substring-search zsh-syntax-highlighting)"
 ZSHRC="${ZDOTDIR:-$HOME}/.zshrc"
