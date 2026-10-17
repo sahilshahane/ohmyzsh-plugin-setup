@@ -1,9 +1,21 @@
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-completions.git ${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions
-git clone https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
-git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-tab
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+CUSTOM="${ZSH_CUSTOM:-${ZSH:-$HOME/.oh-my-zsh}/custom}"
+
+# clone a repo, or update it if a previous run already cloned it
+clone_or_update() {
+  if [ -d "$2/.git" ]; then
+    echo "Updating $2"
+    git -C "$2" pull --ff-only --quiet
+  else
+    git clone --depth=1 "$1" "$2"
+  fi
+}
+
+clone_or_update https://github.com/zsh-users/zsh-autosuggestions "$CUSTOM/plugins/zsh-autosuggestions"
+clone_or_update https://github.com/zsh-users/zsh-syntax-highlighting.git "$CUSTOM/plugins/zsh-syntax-highlighting"
+clone_or_update https://github.com/zsh-users/zsh-completions.git "$CUSTOM/plugins/zsh-completions"
+clone_or_update https://github.com/zsh-users/zsh-history-substring-search "$CUSTOM/plugins/zsh-history-substring-search"
+clone_or_update https://github.com/Aloxaf/fzf-tab "$CUSTOM/plugins/fzf-tab"
+clone_or_update https://github.com/romkatv/powerlevel10k.git "$CUSTOM/themes/powerlevel10k"
 
 # sudo, docker, docker-compose and extract ship with oh-my-zsh; fzf-tab requires fzf to be installed
 PLUGINS="plugins=(git sudo docker docker-compose extract zsh-completions fzf-tab zsh-autosuggestions zsh-history-substring-search zsh-syntax-highlighting)"
