@@ -51,11 +51,20 @@ fi
 PLUGINS="plugins=(git sudo docker docker-compose extract zsh-completions fzf-tab zsh-autosuggestions zsh-history-substring-search zsh-syntax-highlighting)"
 ZSHRC="${ZDOTDIR:-$HOME}/.zshrc"
 
+# rewrite from the backup with POSIX awk (always available, unlike perl); redirecting into
+# "$ZSHRC" keeps it a symlink if it was one
 cp "$ZSHRC" "$ZSHRC.bak"
 if grep -q '^plugins=(' "$ZSHRC"; then
-  # replace the existing plugins=(...) block, even if it spans multiple lines
-  PLUGINS="$PLUGINS" perl -0pi -e 's/^plugins=\([^)]*\)/$ENV{PLUGINS}/m' "$ZSHRC"
+  # replace the first plugins=(...) block, even if it spans multiple lines
+  PLUGINS="$PLUGINS" awk '
+    skip { if (/\)/) skip = 0; next }
+    !done && /^plugins=\(/ { print ENVIRON["PLUGINS"]; done = 1; if (!/\)/) skip = 1; next }
+    { print }
+  ' "$ZSHRC.bak" > "$ZSHRC"
 else
   # plugins must be set before oh-my-zsh is sourced
-  PLUGINS="$PLUGINS" perl -0pi -e 's/^(source \$ZSH\/oh-my-zsh\.sh)/$ENV{PLUGINS}\n$1/m' "$ZSHRC"
+  PLUGINS="$PLUGINS" awk '
+    !done && /^source \$ZSH\/oh-my-zsh\.sh/ { print ENVIRON["PLUGINS"]; done = 1 }
+    { print }
+  ' "$ZSHRC.bak" > "$ZSHRC"
 fi
