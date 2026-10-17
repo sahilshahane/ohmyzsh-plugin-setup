@@ -1,3 +1,8 @@
+# install oh-my-zsh unless it's already there; RUNZSH=no stops the installer from exec'ing zsh and ending this script
+if [ ! -d "${ZSH:-$HOME/.oh-my-zsh}" ]; then
+  RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+
 CUSTOM="${ZSH_CUSTOM:-${ZSH:-$HOME/.oh-my-zsh}/custom}"
 
 # clone a repo, or update it if a previous run already cloned it
